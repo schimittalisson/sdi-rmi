@@ -2,23 +2,21 @@
 
 echo "=== Compilando sistema RMI ==="
 
-# Define o Java 17 explicitamente
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-export PATH=$JAVA_HOME/bin:$PATH
+# Usa o Java padrão do sistema (Java 8)
+echo "Compilando interfaces e implementações com Java padrão..."
 
 # Navega para o diretório src
 cd src
 
-# Compila todas as classes Java com Java 17
-echo "Compilando interfaces e implementações com Java 17..."
-$JAVA_HOME/bin/javac *.java
+# Compila todas as classes Java
+javac *.java
 
 if [ $? -eq 0 ]; then
     echo "✅ Compilação concluída com sucesso!"
     echo ""
     echo "Para executar o sistema:"
-    echo "1. Execute: ./executar_servidor.sh"
-    echo "2. Em outro terminal, execute: ./executar_cliente.sh"
+    echo "1. Execute: ./executar_servidor_simples.sh"
+    echo "2. Em outro terminal, execute: java -cp src Mesa"
 else
     echo "❌ Erro na compilação!"
     exit 1

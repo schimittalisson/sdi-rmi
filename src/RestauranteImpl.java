@@ -1,5 +1,6 @@
 import java.io.*;
 import java.rmi.*;
+import java.rmi.registry.*;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 
@@ -8,8 +9,10 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
     private Map<Integer, Integer> mesasComandas;
     private Map<Integer, List<String[]>> pedidosComanda;
     private Map<Integer, Float> valoresComanda;
+    private Map<Integer, Integer> preparosComanda; // Mapeia comanda para preparo na cozinha
     private int proximaComanda;
     private String[] cardapio;
+    private Cozinha cozinha; // Referência para o serviço da cozinha
     
     public RestauranteImpl() throws RemoteException {
         super();
@@ -17,15 +20,25 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         mesasComandas = new HashMap<>();
         pedidosComanda = new HashMap<>();
         valoresComanda = new HashMap<>();
+        preparosComanda = new HashMap<>();
         proximaComanda = 1;
+        
+        // Inicializa cozinha como null - será conectada quando necessário
+        cozinha = null;
 
         String cardapioPath = "menu_restaurante.csv";
         List<String> cardapioList = new ArrayList<>();
 
         try (Scanner scanner = new Scanner(new FileReader(cardapioPath))) {
+            boolean primeiraLinha = true;
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine().trim();
                 if (!line.isEmpty()) {
+                    // Pula a primeira linha (cabeçalho)
+                    if (primeiraLinha) {
+                        primeiraLinha = false;
+                        continue;
+                    }
                     cardapioList.add(line);
                 }
             }
@@ -94,6 +107,22 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         valoresComanda.put(comanda, valorTotal);
         System.out.println("Pedido feito para comanda " + comanda + ". Valor total: R$ " + valorTotal);
         
+        // NOVO: Restaurante atua como cliente da Cozinha
+        if (conectarCozinha()) {
+            try {
+                System.out.println("Restaurante enviando pedido para a cozinha...");
+                int preparo = cozinha.novoPreparo(comanda, pedido);
+                preparosComanda.put(comanda, preparo);
+                resultado.append("\n✅ Pedido enviado para a cozinha (Preparo #").append(preparo).append(")");
+                System.out.println("Pedido da comanda " + comanda + " enviado para cozinha. Preparo: " + preparo);
+            } catch (RemoteException e) {
+                resultado.append("\n❌ Erro ao enviar pedido para a cozinha: ").append(e.getMessage());
+                System.err.println("Erro ao enviar pedido para cozinha: " + e.getMessage());
+            }
+        } else {
+            resultado.append("\n⚠️ Cozinha não disponível no momento");
+        }
+        
         return resultado.toString();
     }
     
@@ -127,5 +156,76 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         System.out.println("Comanda " + comanda + " fechada. Cliente: " + cliente + 
                           ", Mesa: " + mesa + ", Valor pago: R$ " + valor);
         return true;
+    }
+    
+    // Método para conectar à cozinha sob demanda
+    private boolean conectarCozinha() {
+        if (cozinha != null) {
+            return true; // Já conectado
+        }
+        
+        try {
+            Registry registry = LocateRegistry.getRegistry("localhost", 1099);
+            cozinha = (Cozinha) registry.lookup("Cozinha");
+            System.out.println("Restaurante conectado ao serviço da Cozinha");
+            return true;
+        } catch (Exception e) {
+            System.err.println("Erro ao conectar com a Cozinha: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    // Métodos adicionais para consultar status do preparo na cozinha
+    public int consultarTempoPreparo(int comanda) throws RemoteException {
+        if (!preparosComanda.containsKey(comanda)) {
+            throw new RemoteException("Comanda não possui preparo ativo");
+        }
+        
+        if (!conectarCozinha()) {
+            throw new RemoteException("Cozinha não disponível");
+        }
+        
+        try {
+            int preparo = preparosComanda.get(comanda);
+            return cozinha.tempoPreparo(preparo);
+        } catch (RemoteException e) {
+            throw new RemoteException("Erro ao consultar tempo de preparo: " + e.getMessage());
+        }
+    }
+    
+    public String[] buscarPedidoPronto(int comanda) throws RemoteException {
+        if (!preparosComanda.containsKey(comanda)) {
+            throw new RemoteException("Comanda não possui preparo ativo");
+        }
+        
+        if (!conectarCozinha()) {
+            throw new RemoteException("Cozinha não disponível");
+        }
+        
+        try {
+            int preparo = preparosComanda.get(comanda);
+            String[] pedidoPronto = cozinha.pegarPreparo(preparo);
+            preparosComanda.remove(comanda); // Remove o preparo após buscar
+            System.out.println("Pedido da comanda " + comanda + " retirado da cozinha");
+            return pedidoPronto;
+        } catch (RemoteException e) {
+            throw new RemoteException("Erro ao buscar pedido pronto: " + e.getMessage());
+        }
+    }
+    
+    // Método para verificar se um pedido está pronto (usando pegarPreparo da Cozinha)
+    public boolean pedidoPronto(int comanda) throws RemoteException {
+        if (!preparosComanda.containsKey(comanda)) {
+            return false; // Não há preparo ativo para esta comanda
+        }
+        
+        conectarCozinha();
+        try {
+            int preparo = preparosComanda.get(comanda);
+            int tempoRestante = cozinha.tempoPreparo(preparo);
+            return tempoRestante == 0;
+        } catch (RemoteException e) {
+            return false;
+        }
     }
 }
