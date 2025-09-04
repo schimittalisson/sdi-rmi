@@ -131,6 +131,11 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
             return false;
         }
         
+        if (preparosComanda.containsKey(comanda)) {
+            System.out.println("Não é possível fechar comanda " + comanda + " - pedido ainda em preparo");
+            return false;
+        }
+        
         String cliente = comandas.get(comanda);
         int mesa = mesasComandas.get(comanda);
         float valor = valoresComanda.get(comanda);

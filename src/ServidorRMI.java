@@ -9,13 +9,12 @@ public class ServidorRMI {
             System.out.println("RestauranteImpl criado com sucesso");
             
             Registry registry;
+            System.out.println("Criando novo registry RMI na porta 1099");
             try {
-                registry = LocateRegistry.getRegistry(1099);
-                registry.list();
-                System.out.println("Usando registry RMI existente na porta 1099");
-            } catch (Exception e) {
-                System.out.println("Criando novo registry RMI na porta 1099");
                 registry = LocateRegistry.createRegistry(1099);
+            } catch (Exception e) {
+                System.out.println("Erro ao criar registry, tentando usar existente...");
+                registry = LocateRegistry.getRegistry(1099);
             }
             
             System.out.println("Registrando servico Restaurante...");

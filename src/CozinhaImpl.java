@@ -28,7 +28,7 @@ public class CozinhaImpl extends UnicastRemoteObject implements Cozinha {
         preparos.put(codigoPreparo, pedido.clone());
         comandasPreparo.put(codigoPreparo, comanda);
 
-        int tempoPreparo = random.nextInt(10) + 1;
+        int tempoPreparo = random.nextInt(11) + 10;
         temposPreparo.put(codigoPreparo, tempoPreparo);
         
         temposInicio.put(codigoPreparo, System.currentTimeMillis());

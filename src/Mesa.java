@@ -233,22 +233,7 @@ public class Mesa {
                     if (pronto) {
                         algumPronto = true;
                         System.out.println("Comanda #" + comanda + " - PEDIDO PRONTO!");
-                        
-                        System.out.print("Deseja buscar o pedido agora? (s/n): ");
-                        String resposta = scanner.nextLine().toLowerCase();
-                        
-                        if (resposta.equals("s") || resposta.equals("sim")) {
-                            String[] pedidoPronto = restaurante.buscarPedidoPronto(comanda);
-                            
-                            System.out.println("Pedido da comanda #" + comanda + " entregue!");
-                            System.out.println("Itens:");
-                            for (String item : pedidoPronto) {
-                                String[] partes = item.split(",");
-                                if (partes.length >= 2) {
-                                    System.out.println("  - " + partes[1]);
-                                }
-                            }
-                        }
+                        System.out.println("Aguarde o garcom entregar o pedido na mesa.");
                     } else {
                         try {
                             int tempoRestante = restaurante.consultarTempoPreparo(comanda);
