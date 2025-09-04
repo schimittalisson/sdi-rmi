@@ -1,14 +1,10 @@
 #!/bin/bash
 
 echo "=== Iniciando Servidor RMI ==="
-
-# Define o Java 17 explicitamente
-export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-export PATH=$JAVA_HOME/bin:$PATH
+echo "Iniciando servidor na porta 1099 com Java padrão..."
 
 # Navega para o diretório src
 cd src
 
-# Inicia o servidor RMI com Java 17
-echo "Iniciando servidor na porta 1099 com Java 17..."
-$JAVA_HOME/bin/java ServidorRMI
+# Executa o servidor com Java padrão
+java ServidorRMI

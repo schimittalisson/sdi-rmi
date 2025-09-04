@@ -36,11 +36,8 @@ public class CozinhaImpl extends UnicastRemoteObject implements Cozinha {
         // Marca o tempo de início
         temposInicio.put(codigoPreparo, System.currentTimeMillis());
         
-        System.out.println("Novo preparo iniciado: " + codigoPreparo + 
-                          " para comanda " + comanda + 
-                          " (tempo estimado: " + tempoPreparo + " segundos)");
+        System.out.println("Preparo " + codigoPreparo + " iniciado para comanda " + comanda + " (tempo: " + tempoPreparo + "s)");
         
-        // Exibe os itens do pedido
         System.out.println("Itens do pedido:");
         for (String item : pedido) {
             System.out.println("- " + item);
@@ -61,7 +58,7 @@ public class CozinhaImpl extends UnicastRemoteObject implements Cozinha {
         
         int tempoRestante = Math.max(0, tempoTotal - (int)tempoDecorrido);
         
-        System.out.println("Tempo restante para preparo " + preparo + ": " + tempoRestante + " segundos");
+        System.out.println("Preparo " + preparo + " - tempo restante: " + tempoRestante + "s");
         
         return tempoRestante;
     }
@@ -93,7 +90,7 @@ public class CozinhaImpl extends UnicastRemoteObject implements Cozinha {
         temposInicio.remove(preparo);
         temposPreparo.remove(preparo);
         
-        System.out.println("Preparo " + preparo + " da comanda " + comanda + " foi entregue");
+        System.out.println("Preparo " + preparo + " da comanda " + comanda + " entregue");
         
         return pedido;
     }

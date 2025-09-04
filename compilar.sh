@@ -12,12 +12,12 @@ cd src
 javac *.java
 
 if [ $? -eq 0 ]; then
-    echo "✅ Compilação concluída com sucesso!"
+    echo "Compilação concluída com sucesso!"
     echo ""
     echo "Para executar o sistema:"
-    echo "1. Execute: ./executar_servidor_simples.sh"
+    echo "1. Execute: ./executar_servidor.sh"
     echo "2. Em outro terminal, execute: java -cp src Mesa"
 else
-    echo "❌ Erro na compilação!"
+    echo "Erro na compilação!"
     exit 1
 fi

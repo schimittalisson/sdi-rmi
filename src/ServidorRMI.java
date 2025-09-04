@@ -1,12 +1,13 @@
-import java.rmi.*;
 import java.rmi.registry.*;
 
 public class ServidorRMI {
     public static void main(String[] args) {
         try {
-            // Cria as implementações dos serviços
+            System.out.println("=== SERVIDOR RMI ===");
+            
+            // Cria apenas a implementação do restaurante (sem conexão à cozinha)
             RestauranteImpl restaurante = new RestauranteImpl();
-            CozinhaImpl cozinha = new CozinhaImpl();
+            System.out.println("RestauranteImpl criado com sucesso");
             
             // Tenta usar o registry existente, se não existir, cria um novo
             Registry registry;
@@ -20,15 +21,29 @@ public class ServidorRMI {
                 registry = LocateRegistry.createRegistry(1099);
             }
             
-            // Registra os serviços no registry
+            // Registra apenas o serviço do restaurante primeiro
+            System.out.println("Registrando servico Restaurante...");
             registry.rebind("Restaurante", restaurante);
-            registry.rebind("Cozinha", cozinha);
+            System.out.println("Restaurante registrado com sucesso!");
             
-            System.out.println("Servidor RMI iniciado com sucesso!");
-            System.out.println("Serviços disponíveis:");
-            System.out.println("- Restaurante (porta 1099)");
-            System.out.println("- Cozinha (porta 1099)");
-            System.out.println("Pressione Ctrl+C para parar o servidor...");
+            // Agora cria e registra a cozinha
+            System.out.println("Criando e registrando servico Cozinha...");
+            CozinhaImpl cozinha = new CozinhaImpl();
+            registry.rebind("Cozinha", cozinha);
+            System.out.println("Cozinha registrada com sucesso!");
+            
+            System.out.println("\nSERVIDOR RMI INICIADO COM SUCESSO!");
+            System.out.println("Servicos disponiveis:");
+            System.out.println("   - Restaurante (porta 1099)");
+            System.out.println("   - Cozinha (porta 1099)");
+            System.out.println("\nServidor rodando... Pressione Ctrl+C para parar.");
+            
+            // Lista os serviços registrados para confirmar
+            String[] servicos = registry.list();
+            System.out.println("\nServicos registrados no registry:");
+            for (String servico : servicos) {
+                System.out.println("   - " + servico);
+            }
             
             // Mantém o servidor rodando
             while (true) {

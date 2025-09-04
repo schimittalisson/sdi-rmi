@@ -41,16 +41,19 @@ src/
 ./executar_servidor.sh
 ```
 
-### 3. Executar o cliente (em outro terminal)
+### 3. Executar Mesa
+
+Em outro terminal, execute:
+
 ```bash
-./executar_cliente.sh
+java -cp src Mesa
 ```
 
 ## Formato dos Dados
 
 Os dados seguem o formato CSV conforme especificado:
 - **Formato**: `codigo,produto,valor`
-- **Exemplo**: `1,Pizza Margherita,25.50`
+- **Exemplo**: `1,Pizza de Calabresa,14.19`
 
 ## Exemplo de Uso
 
@@ -68,10 +71,3 @@ Os dados seguem o formato CSV conforme especificado:
 - **Tempo de preparo**: Aleatório entre 1-10 segundos
 - **Persistência**: Em memória (dados perdidos ao reiniciar)
 - **Concorrência**: Suporta múltiplos clientes simultâneos
-
-## Testando o Sistema
-
-O cliente RMI oferece três opções de teste:
-1. **Testar Restaurante**: Testa apenas funcionalidades do restaurante
-2. **Testar Cozinha**: Testa apenas funcionalidades da cozinha  
-3. **Testar Fluxo Completo**: Simula um cliente completo do pedido ao pagamento

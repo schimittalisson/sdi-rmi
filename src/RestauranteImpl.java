@@ -43,9 +43,9 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
                 }
             }
             cardapio = cardapioList.toArray(new String[0]);
-            System.out.println("Cardápio carregado do arquivo: " + cardapioList.size() + " itens");
+            System.out.println("Cardapio carregado: " + cardapioList.size() + " itens");
         } catch (IOException e) {
-            System.err.println("Erro ao carregar cardápio do arquivo. Usando cardápio padrão.");
+            System.err.println("Erro ao carregar cardapio. Usando cardapio padrao.");
             // Cardápio padrão caso o arquivo não seja encontrado
             cardapio = new String[]{
                 "1,Pizza Margherita,25.50",
@@ -66,13 +66,13 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         pedidosComanda.put(numeroComanda, new ArrayList<>());
         valoresComanda.put(numeroComanda, 0.0f);
         
-        System.out.println("Nova comanda criada: " + numeroComanda + " para " + nome + " na mesa " + mesa);
+        System.out.println("Comanda " + numeroComanda + " criada para " + nome + " na mesa " + mesa);
         return numeroComanda;
     }
     
     @Override
     public String[] consultarCardapio() throws RemoteException {
-        System.out.println("Cardápio consultado");
+        System.out.println("Cardapio consultado");
         return cardapio.clone();
     }
     
@@ -105,22 +105,22 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         }
         
         valoresComanda.put(comanda, valorTotal);
-        System.out.println("Pedido feito para comanda " + comanda + ". Valor total: R$ " + valorTotal);
+        System.out.println("Pedido registrado para comanda " + comanda + ". Valor: R$ " + valorTotal);
         
         // NOVO: Restaurante atua como cliente da Cozinha
         if (conectarCozinha()) {
             try {
-                System.out.println("Restaurante enviando pedido para a cozinha...");
+                System.out.println("Enviando pedido para cozinha...");
                 int preparo = cozinha.novoPreparo(comanda, pedido);
                 preparosComanda.put(comanda, preparo);
-                resultado.append("\n✅ Pedido enviado para a cozinha (Preparo #").append(preparo).append(")");
+                resultado.append("\nPedido enviado para cozinha (Preparo #").append(preparo).append(")");
                 System.out.println("Pedido da comanda " + comanda + " enviado para cozinha. Preparo: " + preparo);
             } catch (RemoteException e) {
-                resultado.append("\n❌ Erro ao enviar pedido para a cozinha: ").append(e.getMessage());
+                resultado.append("\nErro ao enviar pedido para cozinha: ").append(e.getMessage());
                 System.err.println("Erro ao enviar pedido para cozinha: " + e.getMessage());
             }
         } else {
-            resultado.append("\n⚠️ Cozinha não disponível no momento");
+            resultado.append("\nCozinha nao disponivel no momento");
         }
         
         return resultado.toString();
@@ -133,7 +133,7 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         }
         
         float valor = valoresComanda.get(comanda);
-        System.out.println("Valor consultado para comanda " + comanda + ": R$ " + valor);
+        System.out.println("Valor da comanda " + comanda + ": R$ " + valor);
         return valor;
     }
     
@@ -153,8 +153,7 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         pedidosComanda.remove(comanda);
         valoresComanda.remove(comanda);
         
-        System.out.println("Comanda " + comanda + " fechada. Cliente: " + cliente + 
-                          ", Mesa: " + mesa + ", Valor pago: R$ " + valor);
+        System.out.println("Comanda " + comanda + " fechada. Cliente: " + cliente + ", Mesa: " + mesa + ", Valor: R$ " + valor);
         return true;
     }
     
@@ -167,7 +166,7 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         try {
             Registry registry = LocateRegistry.getRegistry("localhost", 1099);
             cozinha = (Cozinha) registry.lookup("Cozinha");
-            System.out.println("Restaurante conectado ao serviço da Cozinha");
+            System.out.println("Conectado ao servico da Cozinha");
             return true;
         } catch (Exception e) {
             System.err.println("Erro ao conectar com a Cozinha: " + e.getMessage());
