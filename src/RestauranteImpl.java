@@ -23,7 +23,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         preparosComanda = new HashMap<>();
         proximaComanda = 1;
         
-        // Inicializa cozinha como null - será conectada quando necessário
         cozinha = null;
 
         String cardapioPath = "menu_restaurante.csv";
@@ -34,7 +33,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine().trim();
                 if (!line.isEmpty()) {
-                    // Pula a primeira linha (cabeçalho)
                     if (primeiraLinha) {
                         primeiraLinha = false;
                         continue;
@@ -46,7 +44,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
             System.out.println("Cardapio carregado: " + cardapioList.size() + " itens");
         } catch (IOException e) {
             System.err.println("Erro ao carregar cardapio. Usando cardapio padrao.");
-            // Cardápio padrão caso o arquivo não seja encontrado
             cardapio = new String[]{
                 "1,Pizza Margherita,25.50",
                 "2,Hambúrguer Clássico,18.90",
@@ -107,7 +104,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         valoresComanda.put(comanda, valorTotal);
         System.out.println("Pedido registrado para comanda " + comanda + ". Valor: R$ " + valorTotal);
         
-        // NOVO: Restaurante atua como cliente da Cozinha
         if (conectarCozinha()) {
             try {
                 System.out.println("Enviando pedido para cozinha...");
@@ -147,7 +143,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         int mesa = mesasComandas.get(comanda);
         float valor = valoresComanda.get(comanda);
         
-        // Remove a comanda
         comandas.remove(comanda);
         mesasComandas.remove(comanda);
         pedidosComanda.remove(comanda);
@@ -157,7 +152,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         return true;
     }
     
-    // Método para conectar à cozinha sob demanda
     private boolean conectarCozinha() {
         if (cozinha != null) {
             return true; // Já conectado
@@ -174,7 +168,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         }
     }
     
-    // Métodos adicionais para consultar status do preparo na cozinha
     public int consultarTempoPreparo(int comanda) throws RemoteException {
         if (!preparosComanda.containsKey(comanda)) {
             throw new RemoteException("Comanda não possui preparo ativo");
@@ -212,7 +205,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         }
     }
     
-    // Método para verificar se um pedido está pronto (usando pegarPreparo da Cozinha)
     public boolean pedidoPronto(int comanda) throws RemoteException {
         if (!preparosComanda.containsKey(comanda)) {
             return false; // Não há preparo ativo para esta comanda

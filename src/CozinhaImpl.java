@@ -25,15 +25,12 @@ public class CozinhaImpl extends UnicastRemoteObject implements Cozinha {
     public int novoPreparo(int comanda, String[] pedido) throws RemoteException {
         int codigoPreparo = proximoPreparo++;
         
-        // Armazena o pedido
         preparos.put(codigoPreparo, pedido.clone());
         comandasPreparo.put(codigoPreparo, comanda);
-        
-        // Define tempo de preparo aleatório entre 1 e 10 segundos
+
         int tempoPreparo = random.nextInt(10) + 1;
         temposPreparo.put(codigoPreparo, tempoPreparo);
         
-        // Marca o tempo de início
         temposInicio.put(codigoPreparo, System.currentTimeMillis());
         
         System.out.println("Preparo " + codigoPreparo + " iniciado para comanda " + comanda + " (tempo: " + tempoPreparo + "s)");
@@ -69,7 +66,6 @@ public class CozinhaImpl extends UnicastRemoteObject implements Cozinha {
             throw new RemoteException("Preparo não encontrado");
         }
         
-        // Verifica se o tempo de preparo já passou
         long tempoInicio = temposInicio.get(preparo);
         int tempoTotal = temposPreparo.get(preparo);
         long tempoDecorrido = (System.currentTimeMillis() - tempoInicio) / 1000;
@@ -80,11 +76,9 @@ public class CozinhaImpl extends UnicastRemoteObject implements Cozinha {
                                     tempoRestante + " segundos");
         }
         
-        // Preparo está pronto, pode ser entregue
         String[] pedido = preparos.get(preparo);
         int comanda = comandasPreparo.get(preparo);
         
-        // Remove o preparo da cozinha
         preparos.remove(preparo);
         comandasPreparo.remove(preparo);
         temposInicio.remove(preparo);
