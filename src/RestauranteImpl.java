@@ -44,14 +44,6 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
             System.out.println("Cardapio carregado: " + cardapioList.size() + " itens");
         } catch (IOException e) {
             System.err.println("Erro ao carregar cardapio. Usando cardapio padrao.");
-            cardapio = new String[]{
-                "1,Pizza Margherita,25.50",
-                "2,Hambúrguer Clássico,18.90",
-                "3,Salada Caesar,15.00",
-                "4,Lasanha Bolonhesa,22.00",
-                "5,Refrigerante,5.50",
-                "6,Suco Natural,8.00"
-            };
         }
     }
     
