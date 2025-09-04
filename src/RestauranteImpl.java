@@ -9,10 +9,14 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
     private Map<Integer, Integer> mesasComandas;
     private Map<Integer, List<String[]>> pedidosComanda;
     private Map<Integer, Float> valoresComanda;
-    private Map<Integer, Integer> preparosComanda; // Mapeia comanda para preparo na cozinha
+    private Map<Integer, Integer> preparosComanda;
+    private Map<Integer, Long> temposEntrega;
+    private Map<Integer, Integer> duracaoEntrega;
+    private Map<Integer, Boolean> pedidosEntregues;
     private int proximaComanda;
     private String[] cardapio;
-    private Cozinha cozinha; // Referência para o serviço da cozinha
+    private Cozinha cozinha;
+    private Random random;
     
     public RestauranteImpl() throws RemoteException {
         super();
@@ -21,7 +25,11 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         pedidosComanda = new HashMap<>();
         valoresComanda = new HashMap<>();
         preparosComanda = new HashMap<>();
+        temposEntrega = new HashMap<>();
+        duracaoEntrega = new HashMap<>();
+        pedidosEntregues = new HashMap<>();
         proximaComanda = 1;
+        random = new Random();
         
         cozinha = null;
 
@@ -151,7 +159,7 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
     
     private boolean conectarCozinha() {
         if (cozinha != null) {
-            return true; // Já conectado
+            return true;
         }
         
         try {
@@ -194,7 +202,7 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
         try {
             int preparo = preparosComanda.get(comanda);
             String[] pedidoPronto = cozinha.pegarPreparo(preparo);
-            preparosComanda.remove(comanda); // Remove o preparo após buscar
+            preparosComanda.remove(comanda);
             System.out.println("Pedido da comanda " + comanda + " retirado da cozinha");
             return pedidoPronto;
         } catch (RemoteException e) {
@@ -204,16 +212,64 @@ public class RestauranteImpl extends UnicastRemoteObject implements Restaurante 
     
     public boolean pedidoPronto(int comanda) throws RemoteException {
         if (!preparosComanda.containsKey(comanda)) {
-            return false; // Não há preparo ativo para esta comanda
+            return false;
         }
         
         conectarCozinha();
         try {
             int preparo = preparosComanda.get(comanda);
             int tempoRestante = cozinha.tempoPreparo(preparo);
+            
+            if (tempoRestante == 0 && !temposEntrega.containsKey(comanda)) {
+                int tempoEntrega = random.nextInt(6) + 5;
+                temposEntrega.put(comanda, System.currentTimeMillis());
+                duracaoEntrega.put(comanda, tempoEntrega);
+                pedidosEntregues.put(comanda, false);
+                System.out.println("Pedido da comanda " + comanda + " pronto! Tempo de entrega: " + tempoEntrega + "s");
+                return true;
+            }
+            
             return tempoRestante == 0;
         } catch (RemoteException e) {
             return false;
         }
+    }
+    
+    public boolean pedidoEntregue(int comanda) throws RemoteException {
+        if (!temposEntrega.containsKey(comanda)) {
+            return false;
+        }
+        
+        if (pedidosEntregues.get(comanda)) {
+            return true; // Já foi marcado como entregue
+        }
+        
+        long tempoInicio = temposEntrega.get(comanda);
+        int duracao = duracaoEntrega.get(comanda);
+        long tempoDecorrido = (System.currentTimeMillis() - tempoInicio) / 1000;
+        
+        if (tempoDecorrido >= duracao) {
+            pedidosEntregues.put(comanda, true);
+            System.out.println("Pedido da comanda " + comanda + " foi entregue na mesa");
+            return true;
+        }
+        
+        return false;
+    }
+    
+    public int tempoRestanteEntrega(int comanda) throws RemoteException {
+        if (!temposEntrega.containsKey(comanda)) {
+            return -1;
+        }
+        
+        if (pedidosEntregues.get(comanda)) {
+            return 0;
+        }
+        
+        long tempoInicio = temposEntrega.get(comanda);
+        int duracao = duracaoEntrega.get(comanda);
+        long tempoDecorrido = (System.currentTimeMillis() - tempoInicio) / 1000;
+        
+        return Math.max(0, duracao - (int)tempoDecorrido);
     }
 }

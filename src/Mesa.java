@@ -228,12 +228,22 @@ public class Mesa {
             
             for (int comanda : comandasDaMesa) {
                 try {
+                    boolean entregue = restaurante.pedidoEntregue(comanda);
+                    if (entregue) {
+                        algumPronto = true;
+                        System.out.println("Comanda #" + comanda + " - PEDIDO ENTREGUE!");
+                        continue;
+                    }
+
                     boolean pronto = restaurante.pedidoPronto(comanda);
-                    
                     if (pronto) {
                         algumPronto = true;
-                        System.out.println("Comanda #" + comanda + " - PEDIDO PRONTO!");
-                        System.out.println("Aguarde o garcom entregar o pedido na mesa.");
+                        int tempoEntrega = restaurante.tempoRestanteEntrega(comanda);
+                        if (tempoEntrega > 0) {
+                            System.out.println("Comanda #" + comanda + " - PEDIDO PRONTO! Garcom chegará em " + tempoEntrega + "s");
+                        } else {
+                            System.out.println("Comanda #" + comanda + " - PEDIDO PRONTO! Aguarde o garcom.");
+                        }
                     } else {
                         try {
                             int tempoRestante = restaurante.consultarTempoPreparo(comanda);
@@ -283,7 +293,9 @@ public class Mesa {
                     System.out.println("Pagamento: R$ " + String.format("%.2f", valor));
                     comandasDaMesa.remove(Integer.valueOf(comandaSelecionada));
                 } else {
-                    System.out.println("Erro ao fechar comanda!");
+                    System.out.println("ERRO: Não é possível fechar a comanda!");
+                    System.out.println("Motivo: Há pedido ainda em preparo ou aguardando entrega.");
+                    System.out.println("Aguarde o pedido ser entregue antes de fechar a comanda.");
                 }
             } else {
                 System.out.println("Pagamento cancelado.");

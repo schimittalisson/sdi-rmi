@@ -9,4 +9,6 @@ public interface Restaurante extends Remote {
     public int consultarTempoPreparo(int comanda) throws RemoteException;
     public boolean pedidoPronto(int comanda) throws RemoteException;
     public String[] buscarPedidoPronto(int comanda) throws RemoteException;
+    public boolean pedidoEntregue(int comanda) throws RemoteException;
+    public int tempoRestanteEntrega(int comanda) throws RemoteException;
 }
